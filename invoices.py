@@ -140,3 +140,18 @@ def download_invoice(
         media_type="application/pdf",
         headers={"Content-Disposition": f"attachment; filename=invoice_{invoice.id}.pdf"}
     )
+    
+@router.patch("/{invoice_id}/status")
+def update_invoice_status(
+    invoice_id: int,
+    status: str,
+    session: Session = Depends(database.get_session),
+    current_user: models.User = Depends(get_current_user),
+):
+    invoice = session.get(models.Invoice, invoice_id)
+    if not invoice or invoice.owner_id != current_user.id:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+    invoice.status = status
+    session.commit()
+    session.refresh(invoice)
+    return invoice
