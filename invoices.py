@@ -28,6 +28,8 @@ def create_invoice(
         status="unpaid",
         owner_id=current_user.id,
         created_at=datetime.now(timezone.utc),
+        billing_address=invoice.billing_address,  
+        extra_information=invoice.extra_information 
     )
 
     session.add(new_invoice)
@@ -114,6 +116,9 @@ def download_invoice(
         "client_email": invoice.client_email,
         "due_date": invoice.due_date,
         "status": invoice.status,
+        "billing_address": invoice.billing_address,
+        "extra_information": invoice.extra_information,
+        "created_at": invoice.created_at,
         "total": sum([item.quantity * item.unit_price for item in items]),
         "items": [
             {

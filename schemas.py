@@ -43,6 +43,8 @@ class InvoiceCreate(BaseModel):
     client_name: str
     client_email: str
     due_date: datetime
+    billing_address: str 
+    extra_information: Optional[str] = None
     items: List[InvoiceItemCreate]
 
 class InvoiceRead(BaseModel):
@@ -53,7 +55,27 @@ class InvoiceRead(BaseModel):
     status: str
     total: float
     created_at: datetime
+    billing_address: str  
+    extra_information: Optional[str] = None  
     items: List[InvoiceItemRead]
+class ProfileCreate(BaseModel):
+    firstname: str
+    lastname: str
+    business_name: Optional[str] = None
+    address: Optional[str] = None
 
+class ProfileRead(ProfileCreate):
+    id: int
+    profile_picture: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+
+class ProfileUpdate(BaseModel):
+    firstname: Optional[str] = None
+    lastname: Optional[str] = None
+    business_name: Optional[str] = None
+    address: Optional[str] = None
+    
     class Config:
         orm_mode = True

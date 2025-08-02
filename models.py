@@ -20,11 +20,12 @@ class Invoice(SQLModel, table=True):
     status: str = "unpaid"
     total: float = 0.0
     created_at: datetime = Field(default_factory=datetime.now(timezone.utc))
+    billing_address: str  
+    extra_information: Optional[str] = None  
 
     owner_id: int = Field(foreign_key="user.id")
     owner: Optional[User] = Relationship(back_populates="invoices")
     items: List["InvoiceItem"] = Relationship(back_populates="invoice")
-
 
 class InvoiceItem(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -35,3 +36,13 @@ class InvoiceItem(SQLModel, table=True):
 
     invoice_id: int = Field(foreign_key="invoice.id")
     invoice: Optional[Invoice] = Relationship(back_populates="items")
+class Profile(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    firstname: str
+    lastname: str
+    business_name: Optional[str] = None
+    address: Optional[str] = None
+    profile_picture: Optional[str] = None  
+
+    user_id: int = Field(foreign_key="user.id")
+    user: Optional[User] = Relationship()
