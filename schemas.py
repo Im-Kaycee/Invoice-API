@@ -83,7 +83,7 @@ class AccountCreate(BaseModel):
     account_name: str
     account_number: str
     bank_name: str
-    paypal_ID: str
+    paypal_ID: Optional[str] = None
 
 class AccountRead(AccountCreate):
     id: int

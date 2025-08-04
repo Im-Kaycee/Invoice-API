@@ -52,6 +52,6 @@ class Account(SQLModel, table=True):
     account_name: str
     account_number: str
     bank_name: str
-    paypal_ID: str  
+    paypal_ID: Optional[str]  = None
     user_id: int = Field(foreign_key="user.id")
     user: Optional[User] = Relationship(back_populates="accounts")
