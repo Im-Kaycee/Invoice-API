@@ -10,6 +10,7 @@ class User(SQLModel, table=True):
     hashed_password: str
 
     invoices: List["Invoice"] = Relationship(back_populates="owner")
+    accounts: List["Account"] = Relationship(back_populates="user")
 
 
 class Invoice(SQLModel, table=True):
@@ -46,3 +47,11 @@ class Profile(SQLModel, table=True):
 
     user_id: int = Field(foreign_key="user.id")
     user: Optional[User] = Relationship()
+class Account(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    account_name: str
+    account_number: str
+    bank_name: str
+    paypal_ID: str  
+    user_id: int = Field(foreign_key="user.id")
+    user: Optional[User] = Relationship(back_populates="accounts")

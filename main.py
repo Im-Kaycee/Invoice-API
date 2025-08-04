@@ -1,11 +1,12 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-import invoices, users, profiles
+import invoices, users, profiles, accounts
 app = FastAPI()
 app.include_router(users.router)
 app.include_router(invoices.router)
 app.include_router(profiles.router)
+app.include_router(accounts.router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*", "*"],
@@ -23,9 +24,9 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 @app.get("/")
 async def root():
     return {"message": "Hello, World!"}
-
+'''
 # Database Initialization
-'''from database import engine
+from database import engine
 import models
 
 def create_db():

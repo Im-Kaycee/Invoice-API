@@ -79,3 +79,14 @@ class ProfileUpdate(BaseModel):
     
     class Config:
         orm_mode = True
+class AccountCreate(BaseModel):
+    account_name: str
+    account_number: str
+    bank_name: str
+    paypal_ID: str
+
+class AccountRead(AccountCreate):
+    id: int
+
+    class Config:
+        orm_mode = True
