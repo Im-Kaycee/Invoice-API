@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-import invoices, users, profiles, accounts
+from routes import invoices, users, profiles, accounts
 app = FastAPI()
 app.include_router(users.router)
 app.include_router(invoices.router)
