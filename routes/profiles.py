@@ -75,3 +75,14 @@ def delete_profile(
     session.delete(profile)
     session.commit()
     return {"message": "Profile deleted"}
+@router.get("/", response_model=schemas.ProfileRead)
+def get_profile(
+    session: Session = Depends(database.get_session),
+    current_user: models.User = Depends(get_current_user),
+):
+    profile = session.exec(
+        select(models.Profile).where(models.Profile.user_id == current_user.id)
+    ).first()
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    return profile
