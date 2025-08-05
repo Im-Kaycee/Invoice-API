@@ -61,22 +61,44 @@ All routes are prefixed with `/` and require authentication except registration/
 | POST   | `/users/register`  | Register a new user            |
 | POST   | `/users/login`     | Log in and receive JWT token   |
 
+---
+
 ### 📦 Invoice Routes (Protected)
 > 🔑 Requires `Authorization: Bearer <token>` in header.
 
-| Method | Endpoint               | Description                                  |
-|--------|------------------------|----------------------------------------------|
-| POST   | `/invoices/`           | Create a new invoice with items              |
-| GET    | `/invoices/`           | List all invoices belonging to the user      |
-| GET    | `/invoices/{id}`       | View a specific invoice by ID (user-owned)   |
-| DELETE | `/invoices/{id}`       | Delete an invoice by ID (user-owned)         |
-
-
-| Method | Endpoint                     | Description                      |
-|--------|------------------------------|----------------------------------|
-| GET    | `/invoices/{id}/download`    | Download invoice as PDF         |
+| Method | Endpoint                       | Description                                         |
+|--------|------------------------------- |-----------------------------------------------------|
+| POST   | `/invoices/`                   | Create a new invoice with items                     |
+| GET    | `/invoices/`                   | List all invoices belonging to the user             |
+| GET    | `/invoices/{id}`               | View a specific invoice by ID (user-owned)          |
+| PATCH  | `/invoices/{id}/status`        | Update invoice status (`unpaid`, `paid`, etc.)      |
+| DELETE | `/invoices/{id}`               | Delete an invoice by ID (user-owned)                |
+| GET    | `/invoices/{id}/download`      | Download invoice as PDF                             |
 
 ---
+
+### 👤 Profile Routes (Protected)
+| Method | Endpoint                | Description                                 |
+|--------|-------------------------|---------------------------------------------|
+| POST   | `/profiles/`            | Create a user profile                       |
+| GET    | `/profiles/`            | View current user's profile details         |
+| PATCH  | `/profiles/`            | Update profile details                      |
+| PUT    | `/profiles/picture`     | Upload or update profile picture            |
+| DELETE | `/profiles/`            | Delete current user's profile               |
+
+---
+
+### 💳 Account Routes (Protected)
+| Method | Endpoint                | Description                                 |
+|--------|-------------------------|---------------------------------------------|
+| POST   | `/accounts/`            | Add a payment account for the user          |
+| GET    | `/accounts/`            | List all payment accounts for the user      |
+| DELETE | `/accounts/{account_id}`| Delete a payment account by ID              |
+
+---
+
+> **Note:**  
+> All endpoints (except registration/login) require a valid JWT token in the `Authorization: Bearer <token>` header.
 
 ## ⚙️ How to Run
 
