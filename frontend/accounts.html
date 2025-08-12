@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounts - QuickBill</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#1EB386',
+                            500: '#1EB386',
+                            600: '#1EB386',
+                            700: '#1EB386',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white border-b border-gray-200 fixed w-full z-30 top-0">
+        <div class="px-6">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex items-center space-x-3">
+                        <img src="Logo Container.png">
+                    </div>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="/dashboard.html" class="text-gray-500 hover:text-gray-700 pb-4 px-1 text-sm font-medium border-b-2 border-transparent hover:border-gray-300 transition-colors">Dashboard</a>
+                    <a href="/invoices.html" class="text-gray-500 hover:text-gray-700 pb-4 px-1 text-sm font-medium border-b-2 border-transparent hover:border-gray-300 transition-colors">Invoices</a>
+                    <a href="/accounts.html" class="text-primary-600 border-b-2 border-primary-600 pb-4 px-1 text-sm font-medium">Accounts</a>
+                    <a href="/profiles.html" class="text-gray-500 hover:text-gray-700 pb-4 px-1 text-sm font-medium border-b-2 border-transparent hover:border-gray-300 transition-colors">Profile</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button id="profileDropdown" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+                            <div class="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
+                                <span id="userInitials" class="text-sm font-medium text-primary-600">JD</span>
+                            </div>
+                            <span id="userName" class="hidden md:block text-sm font-medium text-gray-700">John Doe</span>
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        
+                        <div id="dropdownMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                            <div class="py-1">
+                                <a href="/profiles.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile Settings</a>
+                                <a href="/accounts.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Account Settings</a>
+                                <div class="border-t border-gray-100"></div>
+                                <button id="logoutBtn" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Sign out</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-16">
+        <div class="max-w-7xl mx-auto px-6 py-8">
+            <!-- Header -->
+            <div class="mb-8">
+                <h1 class="text-2xl font-bold text-gray-900">Account Management</h1>
+                <p class="text-gray-600">Manage your bank accounts and payment methods</p>
+            </div>
+
+            <!-- Create Account Form -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-lg font-semibold text-gray-900">Add New Account</h2>
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                        </svg>
+                    </div>
+                </div>
+                
+                <form id="createAccountForm" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="accountName" class="block text-sm font-medium text-gray-700 mb-2">Account Name</label>
+                            <input type="text" id="accountName" name="account_name" required placeholder="e.g., My Main Account" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                        </div>
+                        <div>
+                            <label for="accountNumber" class="block text-sm font-medium text-gray-700 mb-2">Account Number</label>
+                            <input type="text" id="accountNumber" name="account_number" required placeholder="Enter account number" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="bankName" class="block text-sm font-medium text-gray-700 mb-2">Bank Name</label>
+                            <input type="text" id="bankName" name="bank_name" required placeholder="Enter bank name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                        </div>
+                        <div>
+                            <label for="paypalID" class="block text-sm font-medium text-gray-700 mb-2">PayPal ID (Optional)</label>
+                            <input type="text" id="paypalID" name="paypal_ID" placeholder="Enter PayPal ID" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200">
+                        <button type="submit" class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 font-medium">
+                            Add Account
+                        </button>
+                    </div>
+                    
+                    <div id="createAccountMessage" class="text-sm text-center"></div>
+                </form>
+            </div>
+
+            <!-- Accounts List -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                    <h2 class="text-lg font-semibold text-gray-900">Your Accounts</h2>
+                    <button id="refreshAccountsBtn" class="text-gray-500 hover:text-gray-700 p-2 rounded-lg hover:bg-gray-100">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div id="accountsList">
+                    <div class="p-8 text-center">
+                        <div class="animate-spin inline-block w-6 h-6 border-[3px] border-current border-t-transparent text-primary-600 rounded-full"></div>
+                        <p class="mt-2 text-gray-500">Loading accounts...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API_BASE_URL = 'http://127.0.0.1:8000';
+
+        function getToken() {
+            return localStorage.getItem('access_token');
+        }
+
+        function checkAuthAndRedirect() {
+            if (!getToken()) {
+                window.location.href = '/login.html';
+            }
+        }
+
+        // Profile dropdown
+        document.getElementById('profileDropdown').addEventListener('click', () => {
+            document.getElementById('dropdownMenu').classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('dropdownMenu');
+            const button = document.getElementById('profileDropdown');
+            if (!button.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('access_token');
+            window.location.href = '/login.html';
+        });
+
+        // Load user info
+        async function loadUserInfo() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/me`, {
+                    headers: { 'Authorization': `Bearer ${getToken()}` }
+                });
+                if (response.ok) {
+                    const user = await response.json();
+                    document.getElementById('userName').textContent = user.username;
+                    document.getElementById('userInitials').textContent = user.username.substring(0, 2).toUpperCase();
+                }
+            } catch (error) {
+                console.error('Error loading user info:', error);
+            }
+        }
+
+        // Create Account
+        document.getElementById('createAccountForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            checkAuthAndRedirect();
+            const form = e.target;
+            const accountData = {
+                account_name: form.account_name.value,
+                account_number: form.account_number.value,
+                bank_name: form.bank_name.value,
+                paypal_ID: form.paypal_ID.value || null
+            };
+            const messageDiv = document.getElementById('createAccountMessage');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/accounts/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getToken()}`
+                    },
+                    body: JSON.stringify(accountData)
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    messageDiv.textContent = 'Account created successfully!';
+                    messageDiv.className = 'text-sm text-center text-green-600';
+                    form.reset();
+                    fetchAccounts();
+                } else {
+                    messageDiv.textContent = `Failed to create account: ${data.detail || 'Unknown error'}`;
+                    messageDiv.className = 'text-sm text-center text-red-600';
+                }
+            } catch (error) {
+                console.error('Error creating account:', error);
+                messageDiv.textContent = 'Network error creating account.';
+                messageDiv.className = 'text-sm text-center text-red-600';
+            }
+        });
+
+        // Fetch Accounts
+        async function fetchAccounts() {
+            checkAuthAndRedirect();
+            const accountsListDiv = document.getElementById('accountsList');
+            accountsListDiv.innerHTML = `
+                <div class="p-8 text-center">
+                    <div class="animate-spin inline-block w-6 h-6 border-[3px] border-current border-t-transparent text-primary-600 rounded-full"></div>
+                    <p class="mt-2 text-gray-500">Loading accounts...</p>
+                </div>
+            `;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/accounts/`, {
+                    headers: { 'Authorization': `Bearer ${getToken()}` }
+                });
+                if (response.ok) {
+                    const accounts = await response.json();
+                    displayAccounts(accounts);
+                } else {
+                    const errorData = await response.json();
+                    accountsListDiv.innerHTML = `<div class="p-8 text-center text-red-600">Failed to load accounts: ${errorData.detail || response.statusText}</div>`;
+                }
+            } catch (error) {
+                console.error('Error fetching accounts:', error);
+                accountsListDiv.innerHTML = '<div class="p-8 text-center text-red-600">Network error fetching accounts.</div>';
+            }
+        }
+
+        function displayAccounts(accounts) {
+            const container = document.getElementById('accountsList');
+            
+            if (accounts.length === 0) {
+                container.innerHTML = `
+                    <div class="p-8 text-center">
+                        <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                        </svg>
+                        <p class="text-gray-500">No accounts found</p>
+                        <p class="text-gray-400 text-sm">Add your first account to get started</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = accounts.map(account => `
+                <div class="p-6 border-b border-gray-200 last:border-b-0 hover:bg-gray-50 transition-colors">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-900">${account.account_name}</p>
+                                <p class="text-sm text-gray-500">${account.bank_name}</p>
+                                <p class="text-xs text-gray-400">Account: ${account.account_number}</p>
+                                ${account.paypal_ID ? `<p class="text-xs text-gray-400">PayPal: ${account.paypal_ID}</p>` : ''}
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="deleteAccount(${account.id})" class="px-3 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('refreshAccountsBtn').addEventListener('click', fetchAccounts);
+
+        // Delete Account
+        async function deleteAccount(accountId) {
+            checkAuthAndRedirect();
+            if (!confirm('Are you sure you want to delete this account?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/accounts/${accountId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${getToken()}` }
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    fetchAccounts();
+                } else {
+                    alert(`Failed to delete account: ${data.message || data.detail || response.statusText}`);
+                }
+            } catch (error) {
+                console.error('Error deleting account:', error);
+                alert('Network error deleting account.');
+            }
+        }
+
+        // Initialize
+        checkAuthAndRedirect();
+        loadUserInfo();
+        fetchAccounts();
+    </script>
+</body>
+</html>

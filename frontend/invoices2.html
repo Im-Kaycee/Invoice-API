@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoices - InvoiceApp</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <header class="bg-white shadow-sm py-4">
+        <nav class="container mx-auto px-4 flex justify-between items-center">
+            <a href="/" class="text-2xl font-bold text-gray-800">InvoiceApp</a>
+            <div class="space-x-4">
+                <a href="/users.html" class="text-gray-600 hover:text-blue-600">Users</a>
+                <a href="/invoices.html" class="text-gray-600 hover:text-blue-600">Invoices</a>
+                <a href="/profiles.html" class="text-gray-600 hover:text-blue-600">Profiles</a>
+                <a href="/accounts.html" class="text-gray-600 hover:text-blue-600">Accounts</a>
+                <button id="logoutBtn" class="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 hidden">Logout</button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Invoice Management</h1>
+
+        <!-- Create Invoice Form -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h2 class="text-xl font-semibold mb-4">Create New Invoice</h2>
+            <form id="createInvoiceForm" class="space-y-4">
+                <div>
+                    <label for="clientName" class="block text-sm font-medium text-gray-700">Client Name</label>
+                    <input type="text" id="clientName" name="client_name" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                </div>
+                <div>
+                    <label for="clientEmail" class="block text-sm font-medium text-gray-700">Client Email</label>
+                    <input type="email" id="clientEmail" name="client_email" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                </div>
+                <div>
+                    <label for="dueDate" class="block text-sm font-medium text-gray-700">Due Date</label>
+                    <input type="datetime-local" id="dueDate" name="due_date" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                </div>
+                <div>
+                    <label for="billingAddress" class="block text-sm font-medium text-gray-700">Billing Address</label>
+                    <textarea id="billingAddress" name="billing_address" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"></textarea>
+                </div>
+                <div>
+                    <label for="extraInformation" class="block text-sm font-medium text-gray-700">Extra Information (Optional)</label>
+                    <textarea id="extraInformation" name="extra_information" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"></textarea>
+                </div>
+
+                <h3 class="text-lg font-semibold mt-6 mb-2">Invoice Items</h3>
+                <div id="invoiceItemsContainer" class="space-y-3">
+                    <!-- Item 1 -->
+                    <div class="flex space-x-2 items-end">
+                        <div class="flex-1">
+                            <label class="block text-sm font-medium text-gray-700">Title</label>
+                            <input title="title" type="text" name="item_title" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                        </div>
+                        <div class="w-24">
+                            <label class="block text-sm font-medium text-gray-700">Quantity</label>
+                            <input title="quantity" type="number" name="item_quantity" required min="1" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                        </div>
+                        <div class="w-24">
+                            <label class="block text-sm font-medium text-gray-700">Unit Price</label>
+                            <input title="price" type="number" name="item_unit_price" required step="0.01" min="0" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                        </div>
+                        <button type="button" class="remove-item-btn bg-red-500 text-white p-2 rounded-md hover:bg-red-600 hidden">Remove</button>
+                    </div>
+                </div>
+                <button type="button" id="addItemBtn" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300">Add Item</button>
+
+                <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">Create Invoice</button>
+                <p id="createInvoiceMessage" class="text-sm mt-2"></p>
+            </form>
+        </div>
+
+        <!-- List Invoices -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h2 class="text-xl font-semibold mb-4">Your Invoices</h2>
+            <button id="refreshInvoicesBtn" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 mb-4">Refresh Invoices</button>
+            <div id="invoicesList" class="space-y-4">
+                <p class="text-gray-500">No invoices found or not logged in. Click "Refresh Invoices" to load.</p>
+            </div>
+        </div>
+
+        <!-- View/Update/Delete Single Invoice -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-4">Manage Specific Invoice</h2>
+            <div class="flex space-x-2 mb-4">
+                <input type="number" id="invoiceIdInput" placeholder="Enter Invoice ID" class="flex-1 border border-gray-300 rounded-md shadow-sm p-2">
+                <button id="getInvoiceBtn" class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">Get Invoice</button>
+            </div>
+            <div id="singleInvoiceDetails" class="border border-gray-200 p-4 rounded-md hidden">
+                <h3 class="text-lg font-semibold mb-2">Invoice #<span id="displayInvoiceId"></span></h3>
+                <p><strong>Client:</strong> <span id="displayClientName"></span> (<span id="displayClientEmail"></span>)</p>
+                <p><strong>Due Date:</strong> <span id="displayDueDate"></span></p>
+                <p><strong>Status:</strong> <span id="displayStatus"></span></p>
+                <p><strong>Total:</strong> $<span id="displayTotal"></span></p>
+                <p><strong>Billing Address:</strong> <span id="displayBillingAddress"></span></p>
+                <p><strong>Extra Info:</strong> <span id="displayExtraInfo"></span></p>
+                <h4 class="font-medium mt-4">Items:</h4>
+                <ul id="displayItemsList" class="list-disc list-inside"></ul>
+
+                <div class="mt-4 flex space-x-2">
+                    <select title="status tag" id="updateStatusSelect" class="border border-gray-300 rounded-md p-2">
+                        <option value="unpaid">Unpaid</option>
+                        <option value="paid">Paid</option>
+                    </select>
+                    <button id="updateStatusBtn" class="bg-yellow-500 text-white py-2 px-4 rounded-md hover:bg-yellow-600">Update Status</button>
+                    <button id="downloadInvoiceBtn" class="bg-purple-500 text-white py-2 px-4 rounded-md hover:bg-purple-600">Download PDF</button>
+                    <button id="deleteInvoiceBtn" class="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600">Delete Invoice</button>
+                </div>
+                <p id="singleInvoiceMessage" class="text-sm mt-2"></p>
+            </div>
+            <p id="getInvoiceMessage" class="text-sm mt-2"></p>
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-4 mt-8">
+        <div class="container mx-auto px-4 text-center">
+            &copy; 2023 InvoiceApp. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        const API_BASE_URL = 'http://127.0.0.1:8000'; // Make sure this matches your FastAPI server URL
+
+        function getToken() {
+            return localStorage.getItem('access_token');
+        }
+
+        function checkAuthAndRedirect() {
+            if (!getToken()) {
+                alert('You need to be logged in to access this page.');
+                window.location.href = '/users.html';
+            }
+        }
+
+        // --- Header Logout Button ---
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (getToken()) {
+            logoutBtn.classList.remove('hidden');
+        }
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('access_token');
+            window.location.href = '/users.html';
+        });
+
+        // --- Create Invoice ---
+        document.getElementById('addItemBtn').addEventListener('click', () => {
+            const container = document.getElementById('invoiceItemsContainer');
+            const newItemDiv = document.createElement('div');
+            newItemDiv.className = 'flex space-x-2 items-end';
+            newItemDiv.innerHTML = `
+                <div class="flex-1">
+                    <label class="block text-sm font-medium text-gray-700">Title</label>
+                    <input type="text" name="item_title" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                </div>
+                <div class="w-24">
+                    <label class="block text-sm font-medium text-gray-700">Quantity</label>
+                    <input type="number" name="item_quantity" required min="1" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                </div>
+                <div class="w-24">
+                    <label class="block text-sm font-medium text-gray-700">Unit Price</label>
+                    <input type="number" name="item_unit_price" required step="0.01" min="0" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                </div>
+                <button type="button" class="remove-item-btn bg-red-500 text-white p-2 rounded-md hover:bg-red-600">Remove</button>
+            `;
+            container.appendChild(newItemDiv);
+            updateRemoveButtons();
+        });
+
+        function updateRemoveButtons() {
+            const removeButtons = document.querySelectorAll('.remove-item-btn');
+            removeButtons.forEach(button => {
+                button.onclick = (e) => {
+                    e.target.closest('.flex.space-x-2.items-end').remove();
+                    // Hide remove button if only one item remains
+                    if (document.querySelectorAll('.remove-item-btn').length === 1) {
+                        document.querySelector('.remove-item-btn').classList.add('hidden');
+                    }
+                };
+            });
+            // Show remove button if more than one item
+            if (removeButtons.length > 1) {
+                removeButtons.forEach(button => button.classList.remove('hidden'));
+            } else if (removeButtons.length === 1) {
+                removeButtons[0].classList.add('hidden'); // Hide if only one
+            }
+        }
+        updateRemoveButtons(); // Initial call to set up buttons
+
+        document.getElementById('createInvoiceForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            checkAuthAndRedirect();
+
+            const form = e.target;
+            const items = [];
+            const itemTitles = form.querySelectorAll('input[name="item_title"]');
+            const itemQuantities = form.querySelectorAll('input[name="item_quantity"]');
+            const itemUnitPrices = form.querySelectorAll('input[name="item_unit_price"]');
+
+            for (let i = 0; i < itemTitles.length; i++) {
+                items.push({
+                    title: itemTitles[i].value,
+                    quantity: parseInt(itemQuantities[i].value),
+                    unit_price: parseFloat(itemUnitPrices[i].value)
+                });
+            }
+
+            const invoiceData = {
+                client_name: form.client_name.value,
+                client_email: form.client_email.value,
+                due_date: new Date(form.due_date.value).toISOString(), // Ensure ISO format
+                billing_address: form.billing_address.value,
+                extra_information: form.extra_information.value || null,
+                items: items
+            };
+
+            const messageDiv = document.getElementById('createInvoiceMessage');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/invoices/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getToken()}`
+                    },
+                    body: JSON.stringify(invoiceData)
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    messageDiv.textContent = `Invoice created successfully! ID: ${data.id}`;
+                    messageDiv.className = 'text-sm mt-2 text-green-600';
+                    form.reset();
+                    document.getElementById('invoiceItemsContainer').innerHTML = `
+                        <div class="flex space-x-2 items-end">
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-700">Title</label>
+                                <input type="text" name="item_title" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                            </div>
+                            <div class="w-24">
+                                <label class="block text-sm font-medium text-gray-700">Quantity</label>
+                                <input type="number" name="item_quantity" required min="1" class="mt-1 block w-full border border-gray-300 rounded-sm p-2">
+                            </div>
+                            <div class="w-24">
+                                <label class="block text-sm font-medium text-gray-700">Unit Price</label>
+                                <input type="number" name="item_unit_price" required step="0.01" min="0" class="mt-1 block w-full border border-gray-300 rounded-sm p-2">
+                            </div>
+                            <button type="button" class="remove-item-btn bg-red-500 text-white p-2 rounded-md hover:bg-red-600 hidden">Remove</button>
+                        </div>
+                    `;
+                    updateRemoveButtons();
+                    fetchInvoices(); // Refresh the list
+                } else {
+                    messageDiv.textContent = `Failed to create invoice: ${data.detail || 'Unknown error'}`;
+                    messageDiv.className = 'text-sm mt-2 text-red-600';
+                }
+            } catch (error) {
+                console.error('Error creating invoice:', error);
+                messageDiv.textContent = 'Network error creating invoice.';
+                messageDiv.className = 'text-sm mt-2 text-red-600';
+            }
+        });
+
+        // --- List Invoices ---
+        async function fetchInvoices() {
+            checkAuthAndRedirect();
+            const invoicesListDiv = document.getElementById('invoicesList');
+            invoicesListDiv.innerHTML = '<p class="text-gray-500">Loading invoices...</p>';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/invoices/`, {
+                    headers: {
+                        'Authorization': `Bearer ${getToken()}`
+                    }
+                });
+                if (response.ok) {
+                    const invoices = await response.json();
+                    if (invoices.length === 0) {
+                        invoicesListDiv.innerHTML = '<p class="text-gray-500">No invoices found.</p>';
+                        return;
+                    }
+                    invoicesListDiv.innerHTML = ''; // Clear previous list
+                    invoices.forEach(invoice => {
+                        const invoiceDiv = document.createElement('div');
+                        invoiceDiv.className = 'border border-gray-200 p-4 rounded-md shadow-sm';
+                        invoiceDiv.innerHTML = `
+                            <p><strong>ID:</strong> ${invoice.id}</p>
+                            <p><strong>Client:</strong> ${invoice.client_name}</p>
+                            <p><strong>Total:</strong> $${invoice.total.toFixed(2)}</p>
+                            <p><strong>Status:</strong> <span class="${invoice.status === 'paid' ? 'text-green-600' : 'text-red-600'}">${invoice.status}</span></p>
+                            <button onclick="document.getElementById('invoiceIdInput').value=${invoice.id}; document.getElementById('getInvoiceBtn').click();" class="mt-2 bg-blue-200 text-blue-800 px-3 py-1 rounded-md hover:bg-blue-300">View Details</button>
+                        `;
+                        invoicesListDiv.appendChild(invoiceDiv);
+                    });
+                } else {
+                    const errorData = await response.json();
+                    invoicesListDiv.innerHTML = `<p class="text-red-600">Failed to load invoices: ${errorData.detail || response.statusText}</p>`;
+                }
+            } catch (error) {
+                console.error('Error fetching invoices:', error);
+                invoicesListDiv.innerHTML = '<p class="text-red-600">Network error fetching invoices.</p>';
+            }
+        }
+        document.getElementById('refreshInvoicesBtn').addEventListener('click', fetchInvoices);
+
+        // --- Get Single Invoice ---
+        document.getElementById('getInvoiceBtn').addEventListener('click', async () => {
+            checkAuthAndRedirect();
+            const invoiceId = document.getElementById('invoiceIdInput').value;
+            const detailsDiv = document.getElementById('singleInvoiceDetails');
+            const messageDiv = document.getElementById('getInvoiceMessage');
+            detailsDiv.classList.add('hidden');
+            messageDiv.textContent = '';
+
+            if (!invoiceId) {
+                messageDiv.textContent = 'Please enter an Invoice ID.';
+                messageDiv.className = 'text-sm mt-2 text-red-600';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/invoices/${invoiceId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${getToken()}`
+                    }
+                });
+                if (response.ok) {
+                    const invoice = await response.json();
+                    document.getElementById('displayInvoiceId').textContent = invoice.id;
+                    document.getElementById('displayClientName').textContent = invoice.client_name;
+                    document.getElementById('displayClientEmail').textContent = invoice.client_email;
+                    document.getElementById('displayDueDate').textContent = new Date(invoice.due_date).toLocaleString();
+                    document.getElementById('displayStatus').textContent = invoice.status;
+                    document.getElementById('displayStatus').className = invoice.status === 'paid' ? 'text-green-600' : 'text-red-600';
+                    document.getElementById('displayTotal').textContent = invoice.total.toFixed(2);
+                    document.getElementById('displayBillingAddress').textContent = invoice.billing_address;
+                    document.getElementById('displayExtraInfo').textContent = invoice.extra_information || 'N/A';
+
+                    const itemsList = document.getElementById('displayItemsList');
+                    itemsList.innerHTML = '';
+                    invoice.items.forEach(item => {
+                        const li = document.createElement('li');
+                        li.textContent = `${item.title} (Qty: ${item.quantity}, Unit Price: $${item.unit_price.toFixed(2)}, Subtotal: $${item.subtotal.toFixed(2)})`;
+                        itemsList.appendChild(li);
+                    });
+
+                    document.getElementById('updateStatusSelect').value = invoice.status;
+                    detailsDiv.classList.remove('hidden');
+                    messageDiv.textContent = '';
+                } else {
+                    const errorData = await response.json();
+                    messageDiv.textContent = `Failed to get invoice: ${errorData.detail || response.statusText}`;
+                    messageDiv.className = 'text-sm mt-2 text-red-600';
+                }
+            } catch (error) {
+                console.error('Error fetching single invoice:', error);
+                messageDiv.textContent = 'Network error fetching invoice.';
+                messageDiv.className = 'text-sm mt-2 text-red-600';
+            }
+        });
+
+        // --- Update Invoice Status ---
+        document.getElementById('updateStatusBtn').addEventListener('click', async () => {
+            checkAuthAndRedirect();
+            const invoiceId = document.getElementById('invoiceIdInput').value;
+            const newStatus = document.getElementById('updateStatusSelect').value;
+            const messageDiv = document.getElementById('singleInvoiceMessage');
+
+            if (!invoiceId) {
+                messageDiv.textContent = 'No invoice selected.';
+                messageDiv.className = 'text-sm mt-2 text-red-600';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/invoices/${invoiceId}/status?status=${newStatus}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${getToken()}`
+                    }
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    messageDiv.textContent = `Invoice status updated to ${data.status}!`;
+                    messageDiv.className = 'text-sm mt-2 text-green-600';
+                    document.getElementById('displayStatus').textContent = data.status;
+                    document.getElementById('displayStatus').className = data.status === 'paid' ? 'text-green-600' : 'text-red-600';
+                    fetchInvoices(); // Refresh list
+                } else {
+                    messageDiv.textContent = `Failed to update status: ${data.detail || response.statusText}`;
+                    messageDiv.className = 'text-sm mt-2 text-red-600';
+                }
+            } catch (error) {
+                console.error('Error updating invoice status:', error);
+                messageDiv.textContent = 'Network error updating status.';
+                messageDiv.className = 'text-sm mt-2 text-red-600';
+            }
+        });
+
+        // --- Download Invoice PDF ---
+        document.getElementById('downloadInvoiceBtn').addEventListener('click', async () => {
+            checkAuthAndRedirect();
+            const invoiceId = document.getElementById('invoiceIdInput').value;
+            const messageDiv = document.getElementById('singleInvoiceMessage');
+
+            if (!invoiceId) {
+                messageDiv.textContent = 'No invoice selected for download.';
+                messageDiv.className = 'text-sm mt-2 text-red-600';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/invoices/${invoiceId}/download`, {
+                    headers: {
+                        'Authorization': `Bearer ${getToken()}`
+                    }
+                });
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `invoice_${invoiceId}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(url);
+                    messageDiv.textContent = 'Invoice PDF downloaded!';
+                    messageDiv.className = 'text-sm mt-2 text-green-600';
+                } else {
+                    const errorData = await response.json();
+                    messageDiv.textContent = `Failed to download PDF: ${errorData.detail || response.statusText}`;
+                    messageDiv.className = 'text-sm mt-2 text-red-600';
+                }
+            } catch (error) {
+                console.error('Error downloading invoice:', error);
+                messageDiv.textContent = 'Network error downloading invoice.';
+                messageDiv.className = 'text-sm mt-2 text-red-600';
+            }
+        });
+
+        // --- Delete Invoice ---
+        document.getElementById('deleteInvoiceBtn').addEventListener('click', async () => {
+            checkAuthAndRedirect();
+            const invoiceId = document.getElementById('invoiceIdInput').value;
+            const messageDiv = document.getElementById('singleInvoiceMessage');
+
+            if (!invoiceId) {
+                messageDiv.textContent = 'No invoice selected for deletion.';
+                messageDiv.className = 'text-sm mt-2 text-red-600';
+                return;
+            }
+
+            if (!confirm(`Are you sure you want to delete invoice ID ${invoiceId}?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/invoices/${invoiceId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${getToken()}`
+                    }
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    messageDiv.textContent = `Invoice ID ${invoiceId} deleted successfully!`;
+                    messageDiv.className = 'text-sm mt-2 text-green-600';
+                    document.getElementById('singleInvoiceDetails').classList.add('hidden');
+                    document.getElementById('invoiceIdInput').value = '';
+                    fetchInvoices(); // Refresh list
+                } else {
+                    messageDiv.textContent = `Failed to delete invoice: ${data.message || data.detail || response.statusText}`;
+                    messageDiv.className = 'text-sm mt-2 text-red-600';
+                }
+            } catch (error) {
+                console.error('Error deleting invoice:', error);
+                messageDiv.textContent = 'Network error deleting invoice.';
+                messageDiv.className = 'text-sm mt-2 text-red-600';
+            }
+        });
+
+        // Initial load
+        checkAuthAndRedirect();
+        fetchInvoices();
+    </script>
+</body>
+</html>

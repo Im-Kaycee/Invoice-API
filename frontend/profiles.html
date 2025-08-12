@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - InvoiceFlow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                           50: '#1EB386',
+                            500: '#1EB386',
+                            600: '#1EB386',
+                            700: '#1EB386',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white border-b border-gray-200 fixed w-full z-30 top-0">
+        <div class="px-6">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex items-center space-x-3">
+                       <img src="Logo Container.png">
+                    </div>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="/dashboard.html" class="text-gray-500 hover:text-gray-700 pb-4 px-1 text-sm font-medium border-b-2 border-transparent hover:border-gray-300 transition-colors">Dashboard</a>
+                    <a href="/invoices.html" class="text-gray-500 hover:text-gray-700 pb-4 px-1 text-sm font-medium border-b-2 border-transparent hover:border-gray-300 transition-colors">Invoices</a>
+                    <a href="/accounts.html" class="text-gray-500 hover:text-gray-700 pb-4 px-1 text-sm font-medium border-b-2 border-transparent hover:border-gray-300 transition-colors">Accounts</a>
+                    <a href="/profiles.html" class="text-primary-600 border-b-2 border-primary-600 pb-4 px-1 text-sm font-medium">Profile</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button id="profileDropdown" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+                            <div class="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
+                                <span id="userInitials" class="text-sm font-medium text-primary-600">JD</span>
+                            </div>
+                            <span id="userName" class="hidden md:block text-sm font-medium text-gray-700">John Doe</span>
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        
+                        <div id="dropdownMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                            <div class="py-1">
+                                <a href="/profiles.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile Settings</a>
+                                <a href="/accounts.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Account Settings</a>
+                                <div class="border-t border-gray-100"></div>
+                                <button id="logoutBtn" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Sign out</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-16">
+        <div class="max-w-4xl mx-auto px-6 py-8">
+            <!-- Header -->
+            <div class="mb-8">
+                <h1 class="text-2xl font-bold text-gray-900">Profile Settings</h1>
+                <p class="text-gray-600">Manage your personal and business information</p>
+            </div>
+
+            <!-- Current Profile Display -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-lg font-semibold text-gray-900">Current Profile</h2>
+                    <button id="refreshProfileBtn" class="text-gray-500 hover:text-gray-700 p-2 rounded-lg hover:bg-gray-100">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="flex items-start space-x-6">
+                    <div class="flex-shrink-0">
+                        <div id="profilePictureContainer" class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center overflow-hidden">
+                            <img id="displayProfilePicture" src="" alt="Profile Picture" class="w-full h-full object-cover hidden">
+                            <svg id="defaultProfileIcon" class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <div id="profileDetails" class="space-y-3">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Full Name</p>
+                                <p class="text-gray-900"><span id="displayFirstName">Not set</span> <span id="displayLastName"></span></p>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Business Name</p>
+                                <p id="displayBusinessName" class="text-gray-900">Not set</p>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Address</p>
+                                <p id="displayAddress" class="text-gray-900">Not set</p>
+                            </div>
+                        </div>
+                        <p id="profileMessage" class="text-sm mt-4"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Create/Update Profile Form -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-lg font-semibold text-gray-900">Profile Information</h2>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <form id="profileForm" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="firstName" class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                                <input type="text" id="firstName" name="firstname" placeholder="Enter first name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                            </div>
+                            <div>
+                                <label for="lastName" class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                                <input type="text" id="lastName" name="lastname" placeholder="Enter last name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="businessName" class="block text-sm font-medium text-gray-700 mb-2">Business Name (Optional)</label>
+                            <input type="text" id="businessName" name="business_name" placeholder="Enter business name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                        </div>
+                        
+                        <div>
+                            <label for="address" class="block text-sm font-medium text-gray-700 mb-2">Address (Optional)</label>
+                            <textarea id="address" name="address" rows="3" placeholder="Enter your address" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"></textarea>
+                        </div>
+
+                        <div class="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
+                            <button type="button" id="resetFormBtn" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                                Reset
+                            </button>
+                            <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 font-medium">
+                                Save Profile
+                            </button>
+                        </div>
+                        
+                        <div id="profileFormMessage" class="text-sm text-center"></div>
+                    </form>
+                </div>
+
+                <!-- Upload Profile Picture -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-lg font-semibold text-gray-900">Profile Picture</h2>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <form id="uploadPictureForm" class="space-y-4">
+                        <div class="text-center">
+                            <div class="w-32 h-32 mx-auto bg-gray-100 rounded-full flex items-center justify-center overflow-hidden mb-4">
+                                <img id="previewImage" src="" alt="Preview" class="w-full h-full object-cover hidden">
+                                <svg id="defaultPreviewIcon" class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="profilePicture" class="block text-sm font-medium text-gray-700 mb-2">Choose Image</label>
+                            <input type="file" id="profilePicture" name="file" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100">
+                        </div>
+
+                        <button type="submit" class="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 font-medium">
+                            Upload Picture
+                        </button>
+                        
+                        <div id="uploadPictureMessage" class="text-sm text-center"></div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="bg-white rounded-xl shadow-sm border border-red-200 p-6 mt-8">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-lg font-semibold text-red-600">Danger Zone</h2>
+                        <p class="text-sm text-gray-600">These actions cannot be undone</p>
+                    </div>
+                    <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.996-.833-2.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                        </svg>
+                    </div>
+                </div>
+                
+                <div class="border border-red-200 rounded-lg p-4">
+                    <h3 class="font-medium text-gray-900 mb-2">Delete Profile</h3>
+                    <p class="text-sm text-gray-600 mb-4">Once you delete your profile, there is no going back. Please be certain.</p>
+                    <button id="deleteProfileBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 font-medium">
+                        Delete Profile
+                    </button>
+                    <div id="deleteProfileMessage" class="text-sm mt-2"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API_BASE_URL = 'http://127.0.0.1:8000';
+
+        function getToken() {
+            return localStorage.getItem('access_token');
+        }
+
+        function checkAuthAndRedirect() {
+            if (!getToken()) {
+                window.location.href = '/login.html';
+            }
+        }
+
+        // Profile dropdown
+        document.getElementById('profileDropdown').addEventListener('click', () => {
+            document.getElementById('dropdownMenu').classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('dropdownMenu');
+            const button = document.getElementById('profileDropdown');
+            if (!button.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('access_token');
+            window.location.href = '/login.html';
+        });
+
+        // Load user info
+        async function loadUserInfo() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/me`, {
+                    headers: { 'Authorization': `Bearer ${getToken()}` }
+                });
+                if (response.ok) {
+                    const user = await response.json();
+                    document.getElementById('userName').textContent = user.username;
+                    document.getElementById('userInitials').textContent = user.username.substring(0, 2).toUpperCase();
+                }
+            } catch (error) {
+                console.error('Error loading user info:', error);
+            }
+        }
+
+        // Fetch and Display Profile
+        async function fetchProfile() {
+            checkAuthAndRedirect();
+            const profileMessageDiv = document.getElementById('profileMessage');
+            profileMessageDiv.textContent = 'Loading profile...';
+            profileMessageDiv.className = 'text-sm mt-4 text-gray-500';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/profiles/`, {
+                    headers: { 'Authorization': `Bearer ${getToken()}` }
+                });
+                if (response.ok) {
+                    const profile = await response.json();
+                    updateProfileDisplay(profile);
+                    profileMessageDiv.textContent = 'Profile loaded successfully.';
+                    profileMessageDiv.className = 'text-sm mt-4 text-green-600';
+                } else if (response.status === 404) {
+                    clearProfileDisplay();
+                    profileMessageDiv.textContent = 'No profile found. Create one below.';
+                    profileMessageDiv.className = 'text-sm mt-4 text-yellow-600';
+                } else {
+                    const errorData = await response.json();
+                    profileMessageDiv.textContent = `Failed to load profile: ${errorData.detail || response.statusText}`;
+                    profileMessageDiv.className = 'text-sm mt-4 text-red-600';
+                }
+            } catch (error) {
+                console.error('Error fetching profile:', error);
+                profileMessageDiv.textContent = 'Network error fetching profile.';
+                profileMessageDiv.className = 'text-sm mt-4 text-red-600';
+            }
+        }
+
+        function updateProfileDisplay(profile) {
+            document.getElementById('displayFirstName').textContent = profile.firstname || 'Not set';
+            document.getElementById('displayLastName').textContent = profile.lastname || '';
+            document.getElementById('displayBusinessName').textContent = profile.business_name || 'Not set';
+            document.getElementById('displayAddress').textContent = profile.address || 'Not set';
+
+            const profilePic = document.getElementById('displayProfilePicture');
+            const previewImg = document.getElementById('previewImage');
+            const defaultIcon = document.getElementById('defaultProfileIcon');
+            const defaultPreviewIcon = document.getElementById('defaultPreviewIcon');
+            
+            if (profile.profile_picture) {
+                const imageUrl = `${API_BASE_URL}/static/profile_pics/${profile.profile_picture}`;
+                profilePic.src = imageUrl;
+                previewImg.src = imageUrl;
+                profilePic.classList.remove('hidden');
+                previewImg.classList.remove('hidden');
+                defaultIcon.classList.add('hidden');
+                defaultPreviewIcon.classList.add('hidden');
+            } else {
+                profilePic.classList.add('hidden');
+                previewImg.classList.add('hidden');
+                defaultIcon.classList.remove('hidden');
+                defaultPreviewIcon.classList.remove('hidden');
+            }
+
+            // Populate form with current values
+            document.getElementById('firstName').value = profile.firstname || '';
+            document.getElementById('lastName').value = profile.lastname || '';
+            document.getElementById('businessName').value = profile.business_name || '';
+            document.getElementById('address').value = profile.address || '';
+        }
+
+        function clearProfileDisplay() {
+            document.getElementById('displayFirstName').textContent = 'Not set';
+            document.getElementById('displayLastName').textContent = '';
+            document.getElementById('displayBusinessName').textContent = 'Not set';
+            document.getElementById('displayAddress').textContent = 'Not set';
+            document.getElementById('displayProfilePicture').classList.add('hidden');
+            document.getElementById('previewImage').classList.add('hidden');
+            document.getElementById('defaultProfileIcon').classList.remove('hidden');
+            document.getElementById('defaultPreviewIcon').classList.remove('hidden');
+        }
+
+        document.getElementById('refreshProfileBtn').addEventListener('click', fetchProfile);
+
+        // Reset form
+        document.getElementById('resetFormBtn').addEventListener('click', () => {
+            document.getElementById('profileForm').reset();
+        });
+
+        // Profile form submission (handles both create and update)
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            checkAuthAndRedirect();
+            const form = e.target;
+            const profileData = {};
+            
+            if (form.firstname.value) profileData.firstname = form.firstname.value;
+            if (form.lastname.value) profileData.lastname = form.lastname.value;
+            if (form.business_name.value) profileData.business_name = form.business_name.value;
+            if (form.address.value) profileData.address = form.address.value;
+
+            const messageDiv = document.getElementById('profileFormMessage');
+
+            if (Object.keys(profileData).length === 0) {
+                messageDiv.textContent = 'Please fill in at least one field.';
+                messageDiv.className = 'text-sm text-center text-yellow-600';
+                return;
+            }
+
+            try {
+                // Try to update first, if that fails, create
+                let response = await fetch(`${API_BASE_URL}/profiles/`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getToken()}`
+                    },
+                    body: JSON.stringify(profileData)
+                });
+
+                // If update fails with 404, try creating
+                if (!response.ok && response.status === 404) {
+                    response = await fetch(`${API_BASE_URL}/profiles/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${getToken()}`
+                        },
+                        body: JSON.stringify(profileData)
+                    });
+                }
+
+                const data = await response.json();
+                if (response.ok) {
+                    messageDiv.textContent = 'Profile saved successfully!';
+                    messageDiv.className = 'text-sm text-center text-green-600';
+                    fetchProfile();
+                } else {
+                    messageDiv.textContent = `Failed to save profile: ${data.detail || 'Unknown error'}`;
+                    messageDiv.className = 'text-sm text-center text-red-600';
+                }
+            } catch (error) {
+                console.error('Error saving profile:', error);
+                messageDiv.textContent = 'Network error saving profile.';
+                messageDiv.className = 'text-sm text-center text-red-600';
+            }
+        });
+
+        // File preview
+        document.getElementById('profilePicture').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            const previewImg = document.getElementById('previewImage');
+            const defaultIcon = document.getElementById('defaultPreviewIcon');
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewImg.src = e.target.result;
+                    previewImg.classList.remove('hidden');
+                    defaultIcon.classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Upload Profile Picture
+        document.getElementById('uploadPictureForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            checkAuthAndRedirect();
+            const fileInput = document.getElementById('profilePicture');
+            const messageDiv = document.getElementById('uploadPictureMessage');
+
+            if (fileInput.files.length === 0) {
+                messageDiv.textContent = 'Please select a file.';
+                messageDiv.className = 'text-sm text-center text-red-600';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/profiles/picture`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${getToken()}` },
+                    body: formData
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    messageDiv.textContent = 'Profile picture uploaded successfully!';
+                    messageDiv.className = 'text-sm text-center text-green-600';
+                    fileInput.value = '';
+                    fetchProfile();
+                } else {
+                    messageDiv.textContent = `Failed to upload picture: ${data.detail || 'Unknown error'}`;
+                    messageDiv.className = 'text-sm text-center text-red-600';
+                }
+            } catch (error) {
+                console.error('Error uploading picture:', error);
+                messageDiv.textContent = 'Network error uploading picture.';
+                messageDiv.className = 'text-sm text-center text-red-600';
+            }
+        });
+
+        // Delete Profile
+        document.getElementById('deleteProfileBtn').addEventListener('click', async () => {
+            checkAuthAndRedirect();
+            const messageDiv = document.getElementById('deleteProfileMessage');
+
+            if (!confirm('Are you sure you want to delete your profile? This action cannot be undone.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/profiles/`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${getToken()}` }
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    messageDiv.textContent = 'Profile deleted successfully! Logging out...';
+                    messageDiv.className = 'text-sm mt-2 text-green-600';
+                    localStorage.removeItem('access_token');
+                    setTimeout(() => {
+                        window.location.href = '/login.html';
+                    }, 2000);
+                } else {
+                    messageDiv.textContent = `Failed to delete profile: ${data.detail || 'Unknown error'}`;
+                    messageDiv.className = 'text-sm mt-2 text-red-600';
+                }
+            } catch (error) {
+                console.error('Error deleting profile:', error);
+                messageDiv.textContent = 'Network error deleting profile.';
+                messageDiv.className = 'text-sm mt-2 text-red-600';
+            }
+        });
+
+        // Initialize
+        checkAuthAndRedirect();
+        loadUserInfo();
+        fetchProfile();
+    </script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Freelancer Invoice API Frontend</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <header class="bg-white shadow-sm py-4">
+        <nav class="container mx-auto px-4 flex justify-between items-center">
+            <a href="/" class="text-2xl font-bold text-gray-800">InvoiceApp</a>
+            <div class="space-x-4">
+                <a href="/users.html" class="text-gray-600 hover:text-blue-600">Users</a>
+                <a href="/invoices.html" class="text-gray-600 hover:text-blue-600">Invoices</a>
+                <a href="/profiles.html" class="text-gray-600 hover:text-blue-600">Profiles</a>
+                <a href="/accounts.html" class="text-gray-600 hover:text-blue-600">Accounts</a>
+                <button id="logoutBtn" class="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 hidden">Logout</button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Welcome to the Invoice API Frontend!</h1>
+        <p class="text-gray-600 mb-4">
+            Navigate through the links above to interact with different parts of the API.
+            Make sure to register and log in first to access protected routes.
+        </p>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-4">Current User Status</h2>
+            <p id="currentUserStatus" class="text-gray-700">Not logged in.</p>
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-4 mt-8">
+        <div class="container mx-auto px-4 text-center">
+            &copy; 2023 InvoiceApp. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        const API_BASE_URL = 'http://127.0.0.1:8000'; // Make sure this matches your FastAPI server URL
+
+        function getToken() {
+            return localStorage.getItem('access_token');
+        }
+
+        function setToken(token) {
+            localStorage.setItem('access_token', token);
+        }
+
+        function removeToken() {
+            localStorage.removeItem('access_token');
+        }
+
+        async function checkLoginStatus() {
+            const token = getToken();
+            const currentUserStatus = document.getElementById('currentUserStatus');
+            const logoutBtn = document.getElementById('logoutBtn');
+
+            if (token) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/users/me`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    if (response.ok) {
+                        const user = await response.json();
+                        currentUserStatus.textContent = `Logged in as: ${user.username} (${user.email})`;
+                        logoutBtn.classList.remove('hidden');
+                    } else {
+                        currentUserStatus.textContent = 'Token invalid or expired. Please log in again.';
+                        removeToken();
+                        logoutBtn.classList.add('hidden');
+                    }
+                } catch (error) {
+                    console.error('Error checking login status:', error);
+                    currentUserStatus.textContent = 'Error checking login status. Please try again.';
+                    removeToken();
+                    logoutBtn.classList.add('hidden');
+                }
+            } else {
+                currentUserStatus.textContent = 'Not logged in.';
+                logoutBtn.classList.add('hidden');
+            }
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            removeToken();
+            window.location.href = '/users.html'; // Redirect to login/register page
+        });
+
+        checkLoginStatus();
+    </script>
+</body>
+</html>

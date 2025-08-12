@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users - InvoiceApp</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <header class="bg-white shadow-sm py-4">
+        <nav class="container mx-auto px-4 flex justify-between items-center">
+            <a href="/" class="text-2xl font-bold text-gray-800">InvoiceApp</a>
+            <div class="space-x-4">
+                <a href="/users.html" class="text-gray-600 hover:text-blue-600">Users</a>
+                <a href="/invoices.html" class="text-gray-600 hover:text-blue-600">Invoices</a>
+                <a href="/profiles.html" class="text-gray-600 hover:text-blue-600">Profiles</a>
+                <a href="/accounts.html" class="text-gray-600 hover:text-blue-600">Accounts</a>
+                <button id="logoutBtn" class="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 hidden">Logout</button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">User Management</h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Register Form -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold mb-4">Register</h2>
+                <form id="registerForm" class="space-y-4">
+                    <div>
+                        <label for="registerUsername" class="block text-sm font-medium text-gray-700">Username</label>
+                        <input type="text" id="registerUsername" name="username" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                    </div>
+                    <div>
+                        <label for="registerEmail" class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" id="registerEmail" name="email" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                    </div>
+                    <div>
+                        <label for="registerPassword" class="block text-sm font-medium text-gray-700">Password</label>
+                        <input type="password" id="registerPassword" name="password" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">Register</button>
+                    <p id="registerMessage" class="text-sm mt-2"></p>
+                </form>
+            </div>
+
+            <!-- Login Form -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold mb-4">Login</h2>
+                <form id="loginForm" class="space-y-4">
+                    <div>
+                        <label for="loginUsername" class="block text-sm font-medium text-gray-700">Username</label>
+                        <input type="text" id="loginUsername" name="username" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                    </div>
+                    <div>
+                        <label for="loginPassword" class="block text-sm font-medium text-gray-700">Password</label>
+                        <input type="password" id="loginPassword" name="password" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                    </div>
+                    <button type="submit" class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700">Login</button>
+                    <p id="loginMessage" class="text-sm mt-2"></p>
+                </form>
+            </div>
+        </div>
+
+        <div class="mt-8 bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-4">Your Profile (if logged in)</h2>
+            <p id="loggedInUser" class="text-gray-700">Not logged in.</p>
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-4 mt-8">
+        <div class="container mx-auto px-4 text-center">
+            &copy; 2023 InvoiceApp. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        const API_BASE_URL = 'http://127.0.0.1:8000'; // Make sure this matches your FastAPI server URL
+
+        function getToken() {
+            return localStorage.getItem('access_token');
+        }
+
+        function setToken(token) {
+            localStorage.setItem('access_token', token);
+        }
+
+        function removeToken() {
+            localStorage.removeItem('access_token');
+        }
+
+        async function fetchCurrentUser() {
+            const token = getToken();
+            const loggedInUserDiv = document.getElementById('loggedInUser');
+            const logoutBtn = document.getElementById('logoutBtn');
+
+            if (!token) {
+                loggedInUserDiv.textContent = 'Not logged in.';
+                logoutBtn.classList.add('hidden');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (response.ok) {
+                    const user = await response.json();
+                    loggedInUserDiv.textContent = `Username: ${user.username}, Email: ${user.email}, ID: ${user.id}`;
+                    logoutBtn.classList.remove('hidden');
+                } else {
+                    const errorData = await response.json();
+                    loggedInUserDiv.textContent = `Error fetching user: ${errorData.detail || response.statusText}`;
+                    removeToken();
+                    logoutBtn.classList.add('hidden');
+                }
+            } catch (error) {
+                console.error('Error fetching current user:', error);
+                loggedInUserDiv.textContent = 'Network error fetching user.';
+                removeToken();
+                logoutBtn.classList.add('hidden');
+            }
+        }
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = e.target.username.value;
+            const email = e.target.email.value;
+            const password = e.target.password.value;
+            const messageDiv = document.getElementById('registerMessage');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, email, password })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    messageDiv.textContent = `Registration successful! User ID: ${data.id}`;
+                    messageDiv.className = 'text-sm mt-2 text-green-600';
+                    e.target.reset(); // Clear form
+                } else {
+                    messageDiv.textContent = `Registration failed: ${data.detail || 'Unknown error'}`;
+                    messageDiv.className = 'text-sm mt-2 text-red-600';
+                }
+            } catch (error) {
+                console.error('Error during registration:', error);
+                messageDiv.textContent = 'Network error during registration.';
+                messageDiv.className = 'text-sm mt-2 text-red-600';
+            }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = e.target.username.value;
+            const password = e.target.password.value;
+            const messageDiv = document.getElementById('loginMessage');
+
+            const formData = new URLSearchParams();
+            formData.append('username', username);
+            formData.append('password', password);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: formData.toString()
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    setToken(data.access_token);
+                    messageDiv.textContent = 'Login successful! Redirecting...';
+                    messageDiv.className = 'text-sm mt-2 text-green-600';
+                    e.target.reset(); // Clear form
+                    setTimeout(() => {
+                        window.location.href = '/'; // Redirect to home or dashboard
+                    }, 1000);
+                } else {
+                    messageDiv.textContent = `Login failed: ${data.detail || 'Invalid credentials'}`;
+                    messageDiv.className = 'text-sm mt-2 text-red-600';
+                    removeToken();
+                }
+            } catch (error) {
+                console.error('Error during login:', error);
+                messageDiv.textContent = 'Network error during login.';
+                messageDiv.className = 'text-sm mt-2 text-red-600';
+                removeToken();
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            removeToken();
+            window.location.href = '/users.html'; // Redirect to login/register page
+        });
+
+        fetchCurrentUser(); // Fetch user info on page load
+    </script>
+</body>
+</html>
